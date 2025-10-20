@@ -1,13 +1,19 @@
-import json, base64, secrets, webbrowser, time, requests
+import json, base64, secrets, webbrowser, time, requests, os
 from pathlib import Path
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
+from dotenv import load_dotenv
 
-CLIENT_ID = "deine-client-id-hier"
-CLIENT_SECRET = "dein-client-secret-hier"
-REDIRECT_URI = "https://deine-webhook-url.de/callback"
+load_dotenv()
 
-API_BASE = "https://ffn-sbx.api.jtl-software.com/api"
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+REDIRECT_URI = os.getenv("REDIRECT_URI")
+API_BASE = os.getenv("API_BASE")
+
+if not CLIENT_ID or not CLIENT_SECRET or not REDIRECT_URI or not API_BASE:
+    raise Exception("CLIENT_ID, CLIENT_SECRET, REDIRECT_URI und API_BASE müssen in .env gesetzt sein")
+
 OAUTH_AUTHORIZE = "https://oauth2.api.jtl-software.com/authorize"
 OAUTH_TOKEN = "https://oauth2.api.jtl-software.com/token"
 SCOPES = "ffn.merchant.read ffn.merchant.write ffn.fulfiller.read ffn.fulfiller.write address email phone profile"
@@ -94,7 +100,7 @@ def get_valid_token():
 
 if __name__ == "__main__":
     print("\nJTL-FFN OAuth Test Tool")
-
+    print(f"API: {API_BASE}")
     token = get_valid_token()
     resp = requests.get(f"{API_BASE}/v1/users/current", headers={'Authorization': f'Bearer {token}'}, timeout=30)
     resp.raise_for_status()
